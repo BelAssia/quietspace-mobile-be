@@ -29,6 +29,15 @@ export class TypeLieuController {
     return this.typeLieuService.create(createTypeLieuDto);
   }
 
+  /**
+   * GET /type-lieu
+   * Récupérer tous les types de lieu
+   * CORRECTION: Cet endpoint était commenté et manquant
+   */
+  @Get()
+  findAll() {
+    return this.typeLieuService.findAll();
+  }
 
   /**
    * GET /type-lieu/:id
@@ -45,8 +54,6 @@ export class TypeLieuController {
     }
     return this.typeLieuService.findOne(id);
   }
-
-
 
   /**
    * PATCH /type-lieu/:id
@@ -75,46 +82,3 @@ export class TypeLieuController {
 
 
 
-
-
-
-//   /**
-//    * GET /type-lieu
-//    * Récupérer tous les types de lieu
-//    * Query param: withLieux (boolean) - inclure les lieux associés
-//    */
-//   @Get()
-//   findAll(@Query('withLieux') withLieux?: string) {
-//     if (withLieux === 'true') {
-//       return this.typeLieuService.findAllWithLieux();
-//     }
-//     return this.typeLieuService.findAll();
-//   }
-
-//   /**
-//    * GET /type-lieu/statistiques
-//    * Récupérer les statistiques des types de lieu
-//    */
-//   @Get('statistiques')
-//   getStatistics() {
-//     return this.typeLieuService.getStatistics();
-//   }
-
-//   /**
-//    * GET /type-lieu/search
-//    * Rechercher un type de lieu par son nom
-//    */
-//   @Get('search')
-//   findByTypeName(@Query('nom') nom: string) {
-//     return this.typeLieuService.findByTypeName(nom);
-//   }
-
-
-//     /**
-//    * GET /type-lieu/:id/count-lieux
-//    * Compter le nombre de lieux pour un type
-//    */
-//   @Get(':id/count-lieux')
-//   countLieux(@Param('id', ParseIntPipe) id: number) {
-//     return this.typeLieuService.countLieuxByType(id);
-//   }

@@ -20,6 +20,7 @@ import { UpdateLieuDto } from './dtos/update-lieu.dto';
 export class LieuController {
   constructor(private readonly lieuService: LieuService) {}
 
+  /*
   /**
    * POST /lieu
    * Créer un nouveau lieu
@@ -30,6 +31,7 @@ export class LieuController {
     return this.lieuService.create(createLieuDto);
   }
 
+  /*
   /**
    * GET /lieu
    * Récupérer tous les lieux
@@ -43,6 +45,9 @@ export class LieuController {
     return this.lieuService.findAll();
   }
 
+ 
+  /*
+   * Récupérer les N lieux les plus proches
   /**
    * GET /lieu/nearby
    * Rechercher des lieux à proximité d'un point
