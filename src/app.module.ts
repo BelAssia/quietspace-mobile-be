@@ -26,6 +26,7 @@ import { PeriodeBruit } from './spatiale/periode_bruit/entities/periode_bruit.en
 import { TypeElemBruit } from './spatiale/type_elem_bruit/entities/type_elem_bruit.entity';
 import { TypeLieu } from './spatiale/type_lieu/entities/type_lieu.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -46,7 +47,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
     }),
       }),
-    AuthModule, UserModule, LieuModule, LieuCalmePeriodeModule, TypeLieuModule, TypeElemBruitModule, PeriodeBruitModule, EnvBruitLieuModule, ElementBruitModule, AvisModule, FeedbackModule, FavorisModule],
+    AuthModule, UserModule, LieuModule, LieuCalmePeriodeModule, TypeLieuModule, TypeElemBruitModule, PeriodeBruitModule, EnvBruitLieuModule, ElementBruitModule, AvisModule, FeedbackModule, FavorisModule, FileModule],
   providers: [ElementBruitService],
   controllers: [ElementBruitController],
 })

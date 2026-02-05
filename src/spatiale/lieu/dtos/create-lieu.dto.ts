@@ -1,9 +1,6 @@
 import { IsString, IsNotEmpty, IsInt, IsNumber, IsOptional, MaxLength, Min, Max } from 'class-validator';
 
 export class CreateLieuDto {
-  @IsInt()
-  @IsNotEmpty({ message: "L'ID du lieu est obligatoire" })
-  idLieu: number;
 
   @IsInt()
   @IsNotEmpty({ message: "L'ID du type de lieu est obligatoire" })

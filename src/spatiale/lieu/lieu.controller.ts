@@ -3,7 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   ParseIntPipe,
@@ -11,29 +11,54 @@ import {
   HttpStatus,
   Query,
   ParseFloatPipe,
+  BadRequestException,
+   UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { LieuService } from './lieu.service';
 import { CreateLieuDto } from './dtos/create-lieu.dto';
 import { UpdateLieuDto } from './dtos/update-lieu.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileService } from 'src/file/file.service';
 
 @Controller('lieu')
 export class LieuController {
-  constructor(private readonly lieuService: LieuService) {}
+  constructor(private readonly lieuService: LieuService,
+      private readonly fileService: FileService,
+  ) {}
 
   /*
-  /**
-   * POST /lieu
    * Créer un nouveau lieu
    */
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  create(@Body() createLieuDto: CreateLieuDto) {
-    return this.lieuService.create(createLieuDto);
+  // @Post()
+  // @HttpCode(HttpStatus.CREATED)
+  // create(@Body() createLieuDto: CreateLieuDto) {
+  //   return this.lieuService.create(createLieuDto);
+  // }
+
+ @Post()
+@HttpCode(HttpStatus.CREATED)
+@UseInterceptors(FileInterceptor('image'))
+async create(
+  @Body() createLieuDto: CreateLieuDto,
+  @UploadedFile() image?: Express.Multer.File,
+) {
+  // Utiliser l'image par défaut si aucune image n'est fournie
+  let imageFileName = this.fileService.getDefaultImageName();
+  
+  // Sauvegarder l'image personnalisée si fournie
+  if (image) {
+    imageFileName = await this.fileService.saveImage(image);
   }
 
+  // Assigner le nom de l'image (par défaut ou personnalisée)
+  createLieuDto.imageLieu = imageFileName;
+
+  return this.lieuService.create(createLieuDto);
+}
+
+
   /*
-  /**
-   * GET /lieu
    * Récupérer tous les lieux
    * Query param: withRelations (boolean) - inclure toutes les relations
    */
@@ -48,24 +73,6 @@ export class LieuController {
  
   /*
    * Récupérer les N lieux les plus proches
-  /**
-   * GET /lieu/nearby
-   * Rechercher des lieux à proximité d'un point
-   * Query params: longitude, latitude, radius (en mètres)
-   */
-  @Get('nearby')
-  findNearby(
-    @Query('longitude', ParseFloatPipe) longitude: number,
-    @Query('latitude', ParseFloatPipe) latitude: number,
-    @Query('radius', ParseIntPipe) radius: number = 1000,
-  ) {
-    return this.lieuService.findNearby(longitude, latitude, radius);
-  }
-
-  /**
-   * GET /lieu/closest
-   * Récupérer les N lieux les plus proches
-   * Query params: longitude, latitude, limit
    */
   @Get('closest')
   findClosest(
@@ -76,46 +83,9 @@ export class LieuController {
     return this.lieuService.findClosest(longitude, latitude, limit);
   }
 
-  /**
-   * GET /lieu/bounding-box
-   * Rechercher des lieux dans une bounding box
-   * Query params: minLng, minLat, maxLng, maxLat
-   */
-  @Get('bounding-box')
-  findInBoundingBox(
-    @Query('minLng', ParseFloatPipe) minLongitude: number,
-    @Query('minLat', ParseFloatPipe) minLatitude: number,
-    @Query('maxLng', ParseFloatPipe) maxLongitude: number,
-    @Query('maxLat', ParseFloatPipe) maxLatitude: number,
-  ) {
-    return this.lieuService.findInBoundingBox(
-      minLongitude,
-      minLatitude,
-      maxLongitude,
-      maxLatitude,
-    );
-  }
 
-  /**
-   * GET /lieu/type/:idTypeLieu
-   * Récupérer les lieux par type
-   */
-  @Get('type/:idTypeLieu')
-  findByType(@Param('idTypeLieu', ParseIntPipe) idTypeLieu: number) {
-    return this.lieuService.findByType(idTypeLieu);
-  }
 
-  /**
-   * GET /lieu/niveau-calme/:niveau
-   * Récupérer les lieux par niveau de calme
-   */
-  @Get('niveau-calme/:niveau')
-  findByNiveauCalme(@Param('niveau') niveau: string) {
-    return this.lieuService.findByNiveauCalme(niveau);
-  }
-
-  /**
-   * GET /lieu/:id
+  /*
    * Récupérer un lieu par son ID
    * Query param: withRelations (boolean) - inclure toutes les relations
    */
@@ -124,67 +94,103 @@ export class LieuController {
     @Param('id', ParseIntPipe) id: number,
     @Query('withRelations') withRelations?: string,
   ) {
+    console.log(`→ GET /lieu/${id}  withRelations=${withRelations}`); //ajouté 
     if (withRelations === 'true') {
       return this.lieuService.findOneWithRelations(id);
     }
     return this.lieuService.findOne(id);
   }
 
-  /**
-   * GET /lieu/:id/coordinates
-   * Récupérer les coordonnées d'un lieu
+
+
+
+  /////////////////////////
+  ////////////////////////GESTION ADMIN
+  ////////////////////////
+  /*
+   * Mettre à jour un lieu avec image optionnelle
    */
-  @Get(':id/coordinates')
-  getCoordinates(@Param('id', ParseIntPipe) id: number) {
-    return this.lieuService.getCoordinates(id);
+@Put(':id')
+@UseInterceptors(FileInterceptor('image'))
+async update(
+  @Param('id', ParseIntPipe) id: number,
+  @Body() updateLieuDto: UpdateLieuDto,
+  @UploadedFile() image?: Express.Multer.File,
+) {
+  const lieu = await this.lieuService.findOne(id);
+  const defaultImageName = this.fileService.getDefaultImageName();
+  
+  // Créer un nouvel objet pour les données de mise à jour
+  const updateData: UpdateLieuDto = { ...updateLieuDto };
+  
+  // Gestion de l'image
+  if (image) {
+    // Cas 1: Nouvelle image fournie
+    
+    // Supprimer l'ancienne image si elle existe et n'est pas l'image par défaut
+    if (lieu.imageLieu && lieu.imageLieu !== defaultImageName) {
+      await this.fileService.deleteImage(lieu.imageLieu);
+    }
+    
+    // Sauvegarder la nouvelle image
+    const imageFileName = await this.fileService.saveImage(image);
+    updateData.imageLieu = imageFileName;
+    
+  } else if (updateLieuDto.imageLieu === '' || updateLieuDto.imageLieu === undefined) {
+    // Cas 2: Champ imageLieu vide ou undefined = on veut réinitialiser à l'image par défaut
+    
+    // Supprimer l'ancienne image si elle existe et n'est pas l'image par défaut
+    if (lieu.imageLieu && lieu.imageLieu !== defaultImageName) {
+      await this.fileService.deleteImage(lieu.imageLieu);
+    }
+    
+    // Mettre l'image par défaut
+    updateData.imageLieu = defaultImageName;
+  }
+  // Cas 3: Si imageLieu a une valeur spécifique (autre que ''), on la garde
+  // Cas 4: Si imageLieu n'est pas dans updateLieuDto, on ne fait rien (garder l'image actuelle)
+  
+  return this.lieuService.update(id, updateData);
+}
+
+  /*
+   * Supprimer un lieu et son image
+   */
+@Delete(':id')
+@HttpCode(HttpStatus.NO_CONTENT)
+async remove(@Param('id', ParseIntPipe) id: number) {
+  const lieu = await this.lieuService.findOne(id);
+  
+  // Supprimer l'image associée seulement si ce n'est pas l'image par défaut
+  if (lieu.imageLieu && lieu.imageLieu !== this.fileService.getDefaultImageName()) {
+    await this.fileService.deleteImage(lieu.imageLieu);
   }
 
-  /**
-   * GET /lieu/:id/statistics
-   * Récupérer les statistiques d'un lieu
-   */
-  @Get(':id/statistics')
-  getStatistics(@Param('id', ParseIntPipe) id: number) {
-    return this.lieuService.getStatistics(id);
-  }
+  return this.lieuService.remove(id);
+}
+/**
+ * GET /lieu/geocode/reverse
+ * Obtenir l'adresse à partir de coordonnées (via Nominatim OpenStreetMap)
+ */
+@Get('geocode/reverse')
+async reverseGeocode(
+  @Query('longitude', ParseFloatPipe) longitude: number,
+  @Query('latitude', ParseFloatPipe) latitude: number,
+) {
+  return this.lieuService.reverseGeocode(longitude, latitude);
+}
+
 
   /**
-   * GET /lieu/:id/count-avis
-   * Compter le nombre d'avis pour un lieu
-   */
-  @Get(':id/count-avis')
-  countAvis(@Param('id', ParseIntPipe) id: number) {
-    return this.lieuService.countAvis(id);
+ * GET /lieu/geocode/search
+ * Rechercher des lieux par nom/adresse (via Nominatim OpenStreetMap)
+ */
+@Get('geocode/search')
+async searchPlaces(@Query('q') query: string) {
+  if (!query || query.trim().length === 0) {
+    throw new BadRequestException('Le paramètre de recherche "q" est requis');
   }
+  return this.lieuService.searchPlaces(query);
+}
 
-  /**
-   * GET /lieu/:id/count-favoris
-   * Compter le nombre de favoris pour un lieu
-   */
-  @Get(':id/count-favoris')
-  countFavoris(@Param('id', ParseIntPipe) id: number) {
-    return this.lieuService.countFavoris(id);
-  }
-
-  /**
-   * PATCH /lieu/:id
-   * Mettre à jour un lieu
-   */
-  @Patch(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateLieuDto: UpdateLieuDto,
-  ) {
-    return this.lieuService.update(id, updateLieuDto);
-  }
-
-  /**
-   * DELETE /lieu/:id
-   * Supprimer un lieu
-   */
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.lieuService.remove(id);
-  }
 }

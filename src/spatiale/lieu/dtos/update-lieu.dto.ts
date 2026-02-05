@@ -6,4 +6,5 @@ export class UpdateLieuDto extends PartialType(CreateLieuDto) {
   @IsInt()
   @IsOptional()
   idLieu?: number;
+  
 }

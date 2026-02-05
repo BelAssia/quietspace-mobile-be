@@ -1,5 +1,5 @@
 
-import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany, JoinColumn ,Index, UpdateDateColumn, CreateDateColumn} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn , Column, ManyToOne, OneToMany, JoinColumn ,Index, UpdateDateColumn, CreateDateColumn} from 'typeorm';
 import { Avis } from 'src/evaluation/avis/entities/avis.entity';
 import { Favoris } from 'src/favoris/entities/favoris.entity';
 import { TypeLieu } from 'src/spatiale/type_lieu/entities/type_lieu.entity';
@@ -8,7 +8,7 @@ import { LieuCalmePeriode } from 'src/spatiale/lieu_calme_periode/entities/lieu_
 
 @Entity('lieu')
 export class Lieu {
-  @PrimaryColumn({ name: 'id_lieu' })
+  @PrimaryGeneratedColumn ({ name: 'id_lieu' })
   idLieu: number;
 
   @Column({ name: 'id_type_lieu' })
