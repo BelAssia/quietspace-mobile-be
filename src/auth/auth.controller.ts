@@ -24,10 +24,7 @@ export class AuthController {
         return message;
     }
 
-    @UseGuards(AuthGuard())
-    @Get('info')
-    info():string{
-        return this.authservice.info();
-    }
+    // @UseGuards(AuthGuard())
+  
 
 }

@@ -1,6 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { ElementBruit } from 'src/spatiale/element_bruit/entities/element_bruit.entity';
-import { PeriodeBruit } from 'src/spatiale/periode_bruit/entities/periode_bruit.entity';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity('type_elem_bruit')
 export class TypeElemBruit {
@@ -16,9 +14,5 @@ export class TypeElemBruit {
   @Column({ type: 'float', name: 'd_half' })
   dHalf: number;
 
-  @OneToMany(() => ElementBruit, (element) => element.typeElemBruit)
-  elementsBruit: ElementBruit[];
 
-  @OneToMany(() => PeriodeBruit, (periode) => periode.typeElemBruit)
-  periodesBruit: PeriodeBruit[];
 }

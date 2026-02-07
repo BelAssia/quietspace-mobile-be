@@ -8,7 +8,7 @@ import { User } from './entities/user.entity';
     imports:[TypeOrmModule.forFeature([User])],//pour activer ler repository
     controllers:[UserController],
     providers: [UserService],
-     exports: [UserService],
+    exports: [UserService],
 
 })
 export class UserModule {}

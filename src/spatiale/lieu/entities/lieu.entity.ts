@@ -3,8 +3,6 @@ import { Entity, PrimaryGeneratedColumn , Column, ManyToOne, OneToMany, JoinColu
 import { Avis } from 'src/evaluation/avis/entities/avis.entity';
 import { Favoris } from 'src/favoris/entities/favoris.entity';
 import { TypeLieu } from 'src/spatiale/type_lieu/entities/type_lieu.entity';
-import { EnvBruitLieu } from 'src/spatiale/env_bruit_lieu/entities/env_bruit_lieu.entity';
-import { LieuCalmePeriode } from 'src/spatiale/lieu_calme_periode/entities/lieu_calme_periode.entity';
 
 @Entity('lieu')
 export class Lieu {
@@ -72,9 +70,6 @@ updatedAt: Date;
   @OneToMany(() => Favoris, (favoris) => favoris.lieu)
   favoris: Favoris[];
 
-  @OneToMany(() => EnvBruitLieu, (envBruit) => envBruit.lieu)
-  envBruitLieux: EnvBruitLieu[];
+  
 
-  @OneToMany(() => LieuCalmePeriode, (lieuCalme) => lieuCalme.lieu)
-  lieuCalmePeriodes: LieuCalmePeriode[];
 }

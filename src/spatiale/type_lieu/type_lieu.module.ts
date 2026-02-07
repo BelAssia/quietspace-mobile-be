@@ -8,6 +8,7 @@ import { TypeLieu } from './entities/type_lieu.entity';
      imports:[TypeOrmModule.forFeature([TypeLieu])],
   
   controllers: [TypeLieuController],
-  providers: [TypeLieuService]
+  providers: [TypeLieuService],
+    exports: [TypeLieuService] 
 })
 export class TypeLieuModule {}

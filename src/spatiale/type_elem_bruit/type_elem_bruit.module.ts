@@ -8,6 +8,7 @@ import { TypeElemBruit } from './entities/type_elem_bruit.entity';
      imports:[TypeOrmModule.forFeature([TypeElemBruit])],
   
   controllers: [TypeElemBruitController],
-  providers: [TypeElemBruitService]
+  providers: [TypeElemBruitService],
+  exports: [TypeElemBruitService]
 })
 export class TypeElemBruitModule {}

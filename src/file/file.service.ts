@@ -22,22 +22,12 @@ export class FileService {
   constructor() {
     // Créer le dossier des images de lieux s'il n'existe pas
     this.ensureImagesDirectoryExists();
-    
-    // Vérifier que l'image par défaut existe
-    this.ensureDefaultImageExists();
+     
   }
 
   private ensureImagesDirectoryExists(): void {
     if (!fs.existsSync(this.imagesPath)) {
       fs.mkdirSync(this.imagesPath, { recursive: true });
-      console.log(`📁 Dossier créé: ${this.imagesPath}`);
-    }
-  }
-
-  private ensureDefaultImageExists(): void {
-    if (!fs.existsSync(this.defaultImagePath)) {
-      console.warn(`⚠️  Image par défaut non trouvée: ${this.defaultImagePath}`);
-      console.log(`ℹ️  Assurez-vous que l'image ${this.defaultImageName} existe dans public/assets/images/`);
     }
   }
 
@@ -82,8 +72,7 @@ export class FileService {
     try {
       // Sauvegarder le fichier
       fs.writeFileSync(filePath, file.buffer);
-      console.log(`💾 Image sauvegardée: ${filePath}`);
-      
+     
       return fileName;
     } catch (error) {
       throw new BadRequestException(`Erreur lors de l'enregistrement: ${error.message}`);
@@ -119,7 +108,6 @@ export class FileService {
       const filePath = path.join(this.imagesPath, imageName);
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
-        console.log(`🗑️  Image supprimée: ${filePath}`);
       }
     } catch (error) {
       console.error(`Erreur lors de la suppression de l'image ${imageName}:`, error);

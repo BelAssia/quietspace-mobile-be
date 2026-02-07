@@ -30,11 +30,7 @@ export class LieuController {
   /*
    * Créer un nouveau lieu
    */
-  // @Post()
-  // @HttpCode(HttpStatus.CREATED)
-  // create(@Body() createLieuDto: CreateLieuDto) {
-  //   return this.lieuService.create(createLieuDto);
-  // }
+
 
  @Post()
 @HttpCode(HttpStatus.CREATED)
@@ -94,19 +90,12 @@ async create(
     @Param('id', ParseIntPipe) id: number,
     @Query('withRelations') withRelations?: string,
   ) {
-    console.log(`→ GET /lieu/${id}  withRelations=${withRelations}`); //ajouté 
+    
     if (withRelations === 'true') {
       return this.lieuService.findOneWithRelations(id);
     }
     return this.lieuService.findOne(id);
   }
-
-
-
-
-  /////////////////////////
-  ////////////////////////GESTION ADMIN
-  ////////////////////////
   /*
    * Mettre à jour un lieu avec image optionnelle
    */

@@ -8,10 +8,12 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  UseGuards
 } from '@nestjs/common';
 import { AvisService } from './avis.service';
 import { CreateAvisDto } from './dtos/Create-avis.dto';
 import { UpdateAvisDto } from './dtos/Update-avis.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('avis')
 export class AvisController {
@@ -20,6 +22,7 @@ export class AvisController {
   /*
    * Créer un nouvel avis
    */
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() createAvisDto: CreateAvisDto) {

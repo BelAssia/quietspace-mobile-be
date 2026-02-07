@@ -4,16 +4,18 @@ import { Repository } from 'typeorm';
 import { Lieu } from './entities/lieu.entity';
 import { CreateLieuDto } from './dtos/create-lieu.dto';
 import { UpdateLieuDto } from './dtos/update-lieu.dto';
+import { CalmeCalculatorService } from '../calme/calme-calculator.service';
+import { TypeLieuService } from '../type_lieu/type_lieu.service';
+
 
 @Injectable()
 export class LieuService {
-  // Valeurs par défaut pour le score et niveau de calme
-  private readonly DEFAULT_SCORE_CALME = 0;
-  private readonly DEFAULT_NIVEAU_CALME = 'tres_bruyant';
 
   constructor(
     @InjectRepository(Lieu)
     private readonly lieuRepository: Repository<Lieu>,
+     private readonly calmeCalculator: CalmeCalculatorService,
+      private readonly typeLieuService: TypeLieuService
   ) {}
 
   /**
@@ -23,6 +25,27 @@ export class LieuService {
     try {
       // on doit verifier si un lieu avec les meme coordonne exist deja!
       // Créer la géométrie Point avec SRID 4326 [longitude, latitude]
+
+       // Vérifier si le type de lieu existe
+    const typeLieu = await this.typeLieuService.findOne(createLieuDto.idTypeLieu );
+
+    if (!typeLieu) {
+      throw new NotFoundException(`Type de lieu avec l'ID ${createLieuDto.idTypeLieu} non trouvé`);
+    }
+  // score de base selon type de lieu
+    const baseScore = typeLieu.baseScore;
+
+
+    // calcul via Overpass
+    const calmeData = await this.calmeCalculator.calculateScoreCalme(
+     createLieuDto.latitude,
+      createLieuDto.longitude,
+      baseScore
+    );
+
+    const scoreCalmeRecupere = calmeData.scoreFinal;
+    const niveauCalmeRecupere = calmeData.niveauCalme;
+
       const lieu = this.lieuRepository.create({
         idTypeLieu: createLieuDto.idTypeLieu,
         nomLieu: createLieuDto.nomLieu,
@@ -34,8 +57,8 @@ export class LieuService {
           coordinates: [createLieuDto.longitude, createLieuDto.latitude],
         },
         // Valeurs par défaut (seront calculées dans le prochain sprint)
-        scoreCalme: this.DEFAULT_SCORE_CALME,
-        niveauCalme: this.DEFAULT_NIVEAU_CALME,
+        scoreCalme: scoreCalmeRecupere,
+        niveauCalme: niveauCalmeRecupere,
       });
 
       return await this.lieuRepository.save(lieu);
@@ -128,7 +151,6 @@ async findClosest(
   latitude: number,
   limit: number = 10,
 ): Promise<any[]> {
-  //Ajouter un JOIN avec type_lieu
   const query = `
     SELECT 
       l.id_lieu as "idLieu",
@@ -149,7 +171,7 @@ async findClosest(
       ) as distance,
       jsonb_build_object(
         'idTypeLieu', tl.id_type_lieu,
-        'typeLieu', tl.type_lieu,
+        'typeLieu', tl."typeLieu",       
         'baseScore', tl.base_score
       ) as "typeLieu"
     FROM lieu l
