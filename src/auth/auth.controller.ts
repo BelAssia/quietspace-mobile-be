@@ -24,7 +24,4 @@ export class AuthController {
         return message;
     }
 
-    // @UseGuards(AuthGuard())
-  
-
 }

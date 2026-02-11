@@ -207,22 +207,7 @@ export class LocationGateway implements OnGatewayConnection, OnGatewayDisconnect
     }
   }
 
-  /**
-   * Message selon la vitesse
-   */
-  // private getSpeedMessage(speed: number): string {
-  //   const speedKmh = speed * 3.6;
-    
-  //   if (speedKmh < 1) return 'Vous êtes stationnaire';
-  //   if (speedKmh < 5) return 'Vous marchez lentement';
-  //   if (speedKmh < 15) return 'Vous marchez rapidement';
-  //   if (speedKmh < 50) return 'Vous êtes en véhicule (ville)';
-  //   return 'Vous êtes en véhicule (route)';
-  // }
-
-  /**
-   * Permettre au client de changer le rayon de tracking
-   */
+ 
   @SubscribeMessage('setTrackingRadius')
   handleSetRadius(
     @ConnectedSocket() client: Socket,

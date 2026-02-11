@@ -82,7 +82,7 @@ export class LieuService {
    */
   async findAllWithRelations(): Promise<Lieu[]> {
     return await this.lieuRepository.find({
-      relations: ['typeLieu', 'avis', 'favoris', 'envBruitLieux', 'lieuCalmePeriodes'],
+      relations: ['typeLieu', 'avis', 'favoris'],
       order: { createdAt: 'DESC' },
     });
   }
@@ -117,7 +117,7 @@ export class LieuService {
   async findOneWithRelations(id: number): Promise<Lieu> {
     const lieu = await this.lieuRepository.findOne({
       where: { idLieu: id },
-      relations: ['typeLieu', 'avis', 'favoris', 'envBruitLieux', 'lieuCalmePeriodes'],
+      relations: ['typeLieu', 'avis', 'favoris'],
     });
 
     if (!lieu) {
